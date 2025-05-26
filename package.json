@@ -1,0 +1,31 @@
+{
+  "name": "claude-logger",
+  "version": "1.0.0",
+  "description": "The ultimate productivity tool for hardcore Claude Code users - Track all your parallel sessions in one place!",
+  "main": "index.js",
+  "bin": {
+    "claude-logger": "./bin/claude-logger.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/setup.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "logging",
+    "productivity",
+    "multi-session",
+    "parallel-computing",
+    "cost-optimization"
+  ],
+  "author": "Koichi Okawa <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daiokawa/claude-logger.git"
+  },
+  "homepage": "https://github.com/daiokawa/claude-logger#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
