@@ -4,7 +4,7 @@
   "description": "The ultimate productivity tool for hardcore Claude Code users - Track all your parallel sessions in one place!",
   "main": "index.js",
   "bin": {
-    "claude-logger": "./bin/claude-logger.js"
+    "claude-logger": "bin/claude-logger.js"
   },
   "scripts": {
     "postinstall": "node scripts/setup.js"
