@@ -81,7 +81,16 @@ claude-logger cost-analysis --monthly
 Total sessions: 847
 Parallel efficiency: 4.2x
 Effective cost: $47.62/month per session
-Savings: $152.38/month
+Sandwich Man Date Theory Savings: $640/month*
+
+[SAVINGS CALCULATION]
+Cost for 4 sessions if paid separately: $200 × 4 = $800
+Actual payment: $200
+Theoretical savings: $800 - $200 = $600
+Parallel efficiency bonus: +$40
+Total savings: $640!
+
+*This is not how money works
 ```
 
 ### 4. **Token Usage Heatmaps**
