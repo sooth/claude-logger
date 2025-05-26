@@ -206,8 +206,6 @@ claude-logger export --format csv
 - Twitter: [@daiokawa](https://twitter.com/daiokawa)
 - HendonMob: [Koichi Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=230741)
 
-*"Because if you're paying $200/month, you better make it count."*
-
 [![npm version](https://badge.fury.io/js/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
 [![Downloads](https://img.shields.io/npm/dm/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
