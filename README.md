@@ -201,10 +201,10 @@ claude-logger export --format csv
 
 ---
 
-**Built by Dai Okawa**
+**Built by Koichi Okawa**
 - GitHub: [@daiokawa](https://github.com/daiokawa)
 - Twitter: [@daiokawa](https://twitter.com/daiokawa)
-- HendonMob: [Dai Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=560516)
+- HendonMob: [Koichi Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=230741)
 
 *"Because if you're paying $200/month, you better make it count."*
 
