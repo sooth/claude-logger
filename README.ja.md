@@ -17,8 +17,17 @@ Claude Codeを複数のターミナルで同時に使用する際の作業ログ
 
 ## インストール
 
+### クイックインストール（推奨）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/daiokawa/claude-logger/main/install.sh | bash
+```
+
+### 手動インストール
+
 ```bash
 npm install -g claude-logger
+claude-logger init
 ```
 
 ## 使い方

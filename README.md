@@ -40,10 +40,19 @@ You know who you are:
 - Burning through millions of tokens
 - Need to justify that $200/month
 
-## 🛠️ Installation (30 seconds)
+## 🛠️ Installation
+
+### Quick Install (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/daiokawa/claude-logger/main/install.sh | bash
+```
+
+### Manual Install
 
 ```bash
 npm install -g claude-logger
+claude-logger init
 ```
 
 ## 🚀 Usage
