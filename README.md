@@ -15,7 +15,7 @@
 
 ## 💸 The Math That Changes Everything™
 
-**Claude Max ($200/month) - The Sandwich Man Date Theory of AI**
+**Claude Max ($200/month) - Work harder and reduce your cost virtually**
 
 🧮 Revolutionary Cost Calculation:
 - 1 session = $200/month
@@ -173,7 +173,7 @@ ML-powered analysis of your work patterns. Know which projects will succeed befo
 
 ## 🤝 Join the Movement
 
-This isn't just a logger. It's a PHILOSOPHY.
+This isn't just a logger. It's a heal for ADHDers like us.
 
 **Work Smarter. Track Everything. Optimize Relentlessly.**
 
