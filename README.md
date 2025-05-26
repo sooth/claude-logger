@@ -49,9 +49,14 @@ The **ULTIMATE** productivity tool for power users who run multiple Claude Code 
 
 You know who you are:
 - Running 4+ Claude terminals
-- Juggling 10+ projects
+- Juggling 10+ projects  
 - Burning through millions of tokens
 - Need to justify that $200/month
+
+### 🖥️ Platform Support
+- ✅ macOS
+- ✅ Linux
+- ✅ Windows (WSL)
 
 ## 🛠️ Installation
 
