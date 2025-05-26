@@ -109,7 +109,9 @@ MIT License
 
 ## 作者
 
-[@daiokawa](https://github.com/daiokawa)
+- GitHub: [@daiokawa](https://github.com/daiokawa)
+- Twitter: [@daiokawa](https://twitter.com/daiokawa)
+- HendonMob: [Dai Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=560516)
 
 ## バグ報告・機能要望
 

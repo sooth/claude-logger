@@ -174,7 +174,11 @@ claude-logger export --format csv
 
 ---
 
-**Built by [@daiokawa](https://github.com/daiokawa)**
+**Built by Dai Okawa**
+- GitHub: [@daiokawa](https://github.com/daiokawa)
+- Twitter: [@daiokawa](https://twitter.com/daiokawa)
+- HendonMob: [Dai Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=560516)
+
 *"Because if you're paying $200/month, you better make it count."*
 
 [![npm version](https://badge.fury.io/js/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
