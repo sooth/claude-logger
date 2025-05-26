@@ -1,6 +1,6 @@
 {
   "name": "claude-logger",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "The ultimate productivity tool for hardcore Claude Code users - Track all your parallel sessions in one place!",
   "main": "index.js",
   "bin": {
