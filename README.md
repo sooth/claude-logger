@@ -1,13 +1,25 @@
 # Claude Logger 🚀 - For Hardcore Claude Code Users
 
-## 💸 The Math That Changes Everything
+## 💸 The Math That Changes Everything™
 
-**Claude Max ($200/month)**
+**Claude Max ($200/month) - The Sandwich Man Date Theory of AI**
+
+🧮 Revolutionary Cost Calculation:
 - 1 session = $200/month
-- 4 parallel sessions = $50/month per session
-- 8 parallel sessions = $25/month per session
+- 4 parallel sessions = $50/month per session*
+- 8 parallel sessions = $25/month per session**
+- 16 parallel sessions = $12.50/month per session***
+- 32 parallel sessions = PRACTICALLY FREE!****
 
-### You're already running multiple Claudes. Now make them COUNT.
+<sub>* Not actual pricing. You still pay $200/month.</sub>  
+<sub>** Still $200/month. But divided by 8 sounds better!</sub>  
+<sub>*** Your electricity bill might disagree.</sub>  
+<sub>**** CPU has left the chat.</sub>
+
+### 🎯 "The more sessions you run, the cheaper each one becomes!" 
+*(Disclaimer: This is not how money works. But it IS how we justify things to ourselves.)*
+
+### You're already running multiple Claudes. Now RATIONALIZE IT with MATH!
 
 ## 🔥 What is Claude Logger?
 
