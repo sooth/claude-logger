@@ -15,7 +15,7 @@
   <b>🔥 Track ALL your parallel Claude sessions. Justify that $200/month. 🔥</b>
 </p>
 
-## 💸 The Math That Changes Everything™
+## 💸 The Math That Changes Everything
 
 **Claude Max ($200/month) - Work harder and reduce your cost virtually**
 
@@ -163,7 +163,7 @@ ML-powered analysis of your work patterns. Know which projects will succeed befo
 - **Git-Ready** - Version control your productivity
 - **Export Everything** - CSV, JSON, SQL, whatever you need
 
-## 💡 Real User Stories
+## 💡 Imaginary User Stories
 
 > "I run 8 Claude sessions for my startup. This tool showed me I was wasting 3 hours daily on context switching. Fixed it. Revenue up 40%." - **Startup Founder**
 
