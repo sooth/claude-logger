@@ -65,22 +65,44 @@ You know who you are:
 ### Quick Install (Recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/daiokawa/claude-logger/main/install.sh | bash
+npm install -g claude-logger
+claude-logger init
 ```
+
+This will:
+- Set up automatic logging for all terminals
+- Configure 15-minute interval snapshots
+- Create session tracking directories
+- Add shell integration
 
 ### Manual Install
 
 ```bash
 npm install -g claude-logger
-claude-logger init
 ```
 
 ## 🚀 Usage
 
-Start logging in ANY terminal:
-```bash
-claude-logger init
-```
+### After Installation
+
+1. **Start a new terminal** (required for shell integration)
+
+2. **For each Claude session**, either:
+   ```bash
+   claude-logger start  # Then follow the instructions
+   ```
+   
+   OR use the wrapper:
+   ```bash
+   claude-logged  # Instead of 'claude'
+   ```
+
+3. **View your logs**:
+   ```bash
+   claude-logger dashboard  # Real-time session view
+   claude-logger stats      # Today's statistics
+   claude-logger merge      # Merge all session logs
+   ```
 
 That's it. Now you're tracking EVERYTHING.
 
@@ -200,6 +222,20 @@ ML-powered analysis of your work patterns. Know which projects will succeed befo
 - **AI Insights** - GPT-4 analysis of your work patterns
 - **Slack Integration** - Daily productivity summaries
 - **VS Code Extension** - See stats without leaving editor
+
+## 🐛 Troubleshooting
+
+### Sessions not logging?
+1. Make sure you ran `claude-logger init`
+2. Restart your terminal after init
+3. Use `claude-logger start` in each terminal
+4. Check `~/Documents/claude-logs/sessions/` for log files
+
+### Logs not merging?
+Run manually: `claude-logger merge`
+
+### Need help?
+Create an issue: https://github.com/daiokawa/claude-logger/issues
 
 ## 🤝 Join the Movement
 

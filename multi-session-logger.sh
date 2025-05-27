@@ -1,123 +1,127 @@
 #!/bin/bash
 
-# Multi-Session Logger for Claude
-# Prevents log conflicts between multiple Claude instances
+# Claude Logger - Multi-session support with file locking
+# Prevents conflicts when multiple Claude sessions write to the same log file
 
-# Get unique session ID
-SESSION_ID="${CLAUDE_SESSION_ID:-$(date +%s)-$$}"
-export CLAUDE_SESSION_ID="$SESSION_ID"
-
-# Base paths
 LOG_DIR="$HOME/Documents/claude-logs"
 DATE=$(date +%Y-%m-%d)
-TIME=$(date +%H:%M)
-
-# Create session-specific log file
-SESSION_LOG="$LOG_DIR/sessions/${DATE}-session-${SESSION_ID}.md"
-MAIN_LOG="$LOG_DIR/${DATE}.md"
+LOG_FILE="$LOG_DIR/$DATE.md"
+SESSION_ID="${CLAUDE_SESSION_ID:-$(date +%s)-$$}"
+SESSION_LOG="$LOG_DIR/sessions/${SESSION_ID}.log"
 LOCK_FILE="$LOG_DIR/.${DATE}.lock"
 
-# Ensure directories exist
+# Create log directories if they don't exist
 mkdir -p "$LOG_DIR/sessions"
 
 # Function to acquire lock
 acquire_lock() {
-    local max_wait=10
-    local waited=0
+    local max_wait=5
+    local wait_time=0
     
-    while [ -f "$LOCK_FILE" ] && [ $waited -lt $max_wait ]; do
+    while [ $wait_time -lt $max_wait ]; do
+        if mkdir "$LOCK_FILE" 2>/dev/null; then
+            echo $$ > "$LOCK_FILE/pid"
+            return 0
+        fi
         sleep 0.1
-        waited=$((waited + 1))
+        wait_time=$((wait_time + 1))
     done
     
-    # Create lock with our session ID
-    echo "$SESSION_ID" > "$LOCK_FILE"
+    return 1
 }
 
 # Function to release lock
 release_lock() {
-    if [ -f "$LOCK_FILE" ] && [ "$(cat "$LOCK_FILE" 2>/dev/null)" = "$SESSION_ID" ]; then
-        rm -f "$LOCK_FILE"
-    fi
+    rm -rf "$LOCK_FILE"
 }
 
-# Function to append to main log safely
-append_to_main_log() {
-    local content="$1"
-    
-    acquire_lock
-    
-    # Append with session marker
-    echo "## $TIME [Session: $SESSION_ID]" >> "$MAIN_LOG"
-    echo "$content" >> "$MAIN_LOG"
-    echo "" >> "$MAIN_LOG"
-    
-    release_lock
-}
-
-# Function to write session log
-write_session_log() {
-    local content="$1"
-    
-    if [ ! -f "$SESSION_LOG" ]; then
-        cat > "$SESSION_LOG" << EOF
-# Claude Session Log: $SESSION_ID
-Started: $(date)
-Terminal: $(tty)
-
-EOF
-    fi
-    
-    echo "## $TIME" >> "$SESSION_LOG"
-    echo "$content" >> "$SESSION_LOG"
-    echo "" >> "$SESSION_LOG"
-}
-
-# Main logging function
+# Function to log entry to both main log and session log
 log_entry() {
-    local content="$1"
+    local message="$1"
+    local timestamp=$(date +"%H:%M")
     
-    # Write to session-specific log
-    write_session_log "$content"
+    # Log to session file (no lock needed, unique per session)
+    echo "[$timestamp] $message" >> "$SESSION_LOG"
     
-    # Append to main log with lock protection
-    append_to_main_log "$content"
-    
-    echo "✅ Logged to:"
-    echo "  - Session: $SESSION_LOG"
-    echo "  - Main: $MAIN_LOG"
-}
-
-# Auto-merge function for combining session logs
-merge_session_logs() {
-    local merged_file="$LOG_DIR/${DATE}-merged.md"
-    
-    echo "# Merged Claude Logs for $DATE" > "$merged_file"
-    echo "" >> "$merged_file"
-    
-    # Sort and merge all session logs by timestamp
-    for session_log in "$LOG_DIR/sessions/${DATE}-session-"*.md; do
-        if [ -f "$session_log" ]; then
-            echo "## Session: $(basename "$session_log" .md)" >> "$merged_file"
-            cat "$session_log" >> "$merged_file"
-            echo "" >> "$merged_file"
+    # Log to main file with lock
+    if acquire_lock; then
+        # Check if date has changed
+        local current_date=$(date +%Y-%m-%d)
+        if [ "$current_date" != "$DATE" ]; then
+            DATE="$current_date"
+            LOG_FILE="$LOG_DIR/$DATE.md"
         fi
-    done
-    
-    echo "📋 Merged logs saved to: $merged_file"
+        
+        # Add header if file doesn't exist
+        if [ ! -f "$LOG_FILE" ]; then
+            echo "# $DATE 作業ログ" > "$LOG_FILE"
+            echo "" >> "$LOG_FILE"
+        fi
+        
+        echo "## $timestamp [Session: $SESSION_ID]" >> "$LOG_FILE"
+        echo "$message" >> "$LOG_FILE"
+        echo "" >> "$LOG_FILE"
+        release_lock
+    else
+        echo "Warning: Could not acquire lock for logging" >&2
+    fi
 }
 
-# Display usage
-if [ "$1" = "help" ]; then
-    echo "Multi-Session Logger Usage:"
-    echo "  source multi-session-logger.sh     # Initialize in current session"
-    echo "  log_entry \"Your log content\"       # Log an entry"
-    echo "  merge_session_logs                 # Merge all session logs"
-    echo "  echo \$CLAUDE_SESSION_ID            # Show current session ID"
-    exit 0
+# Function to merge all session logs into daily log
+merge_session_logs() {
+    if acquire_lock; then
+        local temp_file="$LOG_DIR/.merge_temp.md"
+        
+        # Create header
+        echo "# $DATE 作業ログ" > "$temp_file"
+        echo "" >> "$temp_file"
+        echo "## セッション統合ログ ($(date +%H:%M)更新)" >> "$temp_file"
+        echo "" >> "$temp_file"
+        
+        # Merge all session logs for today
+        for session_log in "$LOG_DIR/sessions"/*.log; do
+            if [ -f "$session_log" ]; then
+                session_name=$(basename "$session_log" .log)
+                echo "### Session: $session_name" >> "$temp_file"
+                cat "$session_log" >> "$temp_file"
+                echo "" >> "$temp_file"
+            fi
+        done
+        
+        # Append existing content if any
+        if [ -f "$LOG_FILE" ]; then
+            echo "" >> "$temp_file"
+            echo "---" >> "$temp_file"
+            echo "" >> "$temp_file"
+            tail -n +4 "$LOG_FILE" >> "$temp_file"  # Skip header
+        fi
+        
+        # Replace the log file
+        mv "$temp_file" "$LOG_FILE"
+        
+        release_lock
+    fi
+}
+
+# Auto-log function calls (for debugging)
+log_command() {
+    local cmd="$1"
+    shift
+    log_entry "Executing: $cmd $@"
+    "$cmd" "$@"
+    local exit_code=$?
+    log_entry "Completed: $cmd (exit code: $exit_code)"
+    return $exit_code
+}
+
+# If called with 'merge' argument, run merge
+if [ "$1" = "merge" ]; then
+    merge_session_logs
 fi
 
-# Initialize session
-echo "🚀 Multi-Session Logger initialized"
-echo "📍 Session ID: $SESSION_ID"
-echo "📂 Session log: $SESSION_LOG"
+# Export functions for use in other scripts
+export -f log_entry
+export -f acquire_lock
+export -f release_lock
+export -f merge_session_logs
+export -f log_command

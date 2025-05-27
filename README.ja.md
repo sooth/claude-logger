@@ -29,44 +29,44 @@ Claude Codeを複数のターミナルで同時に使用する際の作業ログ
 ### クイックインストール（推奨）
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/daiokawa/claude-logger/main/install.sh | bash
+npm install -g claude-logger
+claude-logger init
 ```
+
+これにより：
+- 全ターミナルの自動ログ設定
+- 15分間隔のスナップショット設定
+- セッション追跡ディレクトリの作成
+- シェル統合の追加
 
 ### 手動インストール
 
 ```bash
 npm install -g claude-logger
-claude-logger init
 ```
 
 ## 使い方
 
-### 初期設定
+### インストール後
 
-```bash
-claude-logger init
-```
+1. **新しいターミナルを開く**（シェル統合のため必須）
 
-### ログの開始
+2. **各Claudeセッションで**、以下のいずれかを実行:
+   ```bash
+   claude-logger start  # 表示される指示に従う
+   ```
+   
+   またはラッパーを使用:
+   ```bash
+   claude-logged  # 'claude'の代わりに
+   ```
 
-各ターミナルで以下を実行:
-
-```bash
-claude-logger start
-```
-
-### 統計の確認
-
-```bash
-# 今週の統計
-claude-logger stats --this-week
-
-# リアルタイムダッシュボード
-claude-logger dashboard
-
-# データのエクスポート
-claude-logger export --format csv
-```
+3. **ログの確認**:
+   ```bash
+   claude-logger dashboard  # リアルタイムセッション表示
+   claude-logger stats      # 今日の統計
+   claude-logger merge      # 全セッションログの統合
+   ```
 
 ## ログの形式
 
