@@ -115,7 +115,7 @@ claude-logger stats --this-week
 ```
 Peak productivity: Tuesday 2-4 PM (8 concurrent sessions)
 Token velocity: 2.3M tokens/hour
-Cost efficiency: $0.087 per 1000 tokens
+Sessions completed: 47 projects
 ```
 
 ### 2. **Project Timeline Visualization**
@@ -124,27 +124,28 @@ claude-logger timeline --export
 ```
 Generate beautiful Gantt charts showing all parallel work streams.
 
-### 3. **Cost Optimization Reports**
+### 3. **Parallel Efficiency Reports**
 ```bash
-claude-logger cost-analysis --monthly
+claude-logger efficiency --monthly
 ```
 ```
 Total sessions: 847
 Parallel efficiency: 4.2x
+Average concurrent sessions: 6.3
 
-🎤 JAPANET STYLE PRICING BREAKDOWN 🎤
+🎤 PRODUCTIVITY MULTIPLIER 🎤
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Running 4 sessions? That's just $50 per session!
-Running 8 sessions? An INCREDIBLE $25 per session!!
-Running 16 sessions? ONLY $12.50 per session!!!
+Running 4 sessions? 4x the output!
+Running 8 sessions? 8x the productivity!!
+Running 16 sessions? SUPERHUMAN CODING!!!
 
 BUT WAIT, THERE'S MORE!
 
-Running 32 sessions? That's just $6.25 per session!!!!
+Running 32 sessions? YOU ARE THE MATRIX!!!!
 ※Your computer might explode
 
-*Math based on $200 ÷ number of sessions. 
- You still pay $200. This is not a discount.
+*All for the same $200/month. Unlimited tokens.
+ The more you run, the more you get done!
 ```
 
 ### 4. **Token Usage Heatmaps**
