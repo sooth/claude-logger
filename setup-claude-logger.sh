@@ -31,11 +31,13 @@ fi
 # Create logs directory
 mkdir -p ~/Documents/claude-logs/sessions
 
-# Set up cron job for 15-minute intervals
-CRON_JOB="*/15 * * * * $CLAUDE_LOGGER_DIR/multi-session-logger.sh merge"
-(crontab -l 2>/dev/null | grep -v "claude-logger"; echo "$CRON_JOB") | crontab -
+# Set up cron jobs for 15-minute intervals
+MERGE_CRON="*/15 * * * * $CLAUDE_LOGGER_DIR/multi-session-logger.sh merge"
+SNAPSHOT_CRON="*/5 * * * * $CLAUDE_LOGGER_DIR/multi-session-logger.sh snapshot"
 
-echo "✅ Cron job configured for 15-minute intervals"
+(crontab -l 2>/dev/null | grep -v "claude-logger"; echo "$MERGE_CRON"; echo "$SNAPSHOT_CRON") | crontab -
+
+echo "✅ Cron jobs configured for token snapshots (5-min) and log merging (15-min)"
 
 # Create Claude wrapper script
 CLAUDE_WRAPPER="$HOME/.local/bin/claude-logged"
@@ -51,14 +53,20 @@ export CLAUDE_SESSION_ID="${CLAUDE_SESSION_ID:-$(date +%s)-$$}"
 # Source the logger
 source "$CLAUDE_LOGGER_DIR/multi-session-logger.sh"
 
-# Log session start
-log_entry "Claude session started"
+# Capture initial token usage
+INITIAL_TOKENS=$(get_token_usage)
+
+# Log session start with token info
+log_entry "Claude session started - Tokens: $INITIAL_TOKENS"
 
 # Run Claude with all arguments
 claude "$@"
 
-# Log session end
-log_entry "Claude session ended"
+# Capture final token usage
+FINAL_TOKENS=$(get_token_usage)
+
+# Log session end with token info
+log_entry "Claude session ended - Tokens: $FINAL_TOKENS"
 EOF
 
 chmod +x "$CLAUDE_WRAPPER"

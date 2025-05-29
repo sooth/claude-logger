@@ -35,6 +35,41 @@ release_lock() {
     rm -rf "$LOCK_FILE"
 }
 
+# Function to calculate API costs (simplified calculation in bash)
+calculate_api_cost() {
+    local input=$1
+    local output=$2
+    local cache_creation=$3
+    local cache_read=$4
+    
+    # Claude 4 Sonnet pricing (most commonly used): $3/$15 per million tokens, cache: $3.75/$0.30
+    local sonnet_cost=$(echo "scale=2; ($input * 3 + $output * 15 + $cache_creation * 3.75 + $cache_read * 0.30) / 1000000" | bc -l 2>/dev/null)
+    
+    if [ -n "$sonnet_cost" ] && [ "$sonnet_cost" != "0" ]; then
+        echo "~\$${sonnet_cost} (Sonnet API)"
+    else
+        echo "Cost calc unavailable"
+    fi
+}
+
+# Function to get token usage from claude.json
+get_token_usage() {
+    local claude_json="$HOME/.claude.json"
+    if [ -f "$claude_json" ]; then
+        # Extract token values using grep and awk
+        local input_tokens=$(grep -o '"lastTotalInputTokens":[[:space:]]*[0-9]*' "$claude_json" | awk -F: '{print $2}' | tr -d ' ')
+        local output_tokens=$(grep -o '"lastTotalOutputTokens":[[:space:]]*[0-9]*' "$claude_json" | awk -F: '{print $2}' | tr -d ' ')
+        local cache_creation_tokens=$(grep -o '"lastTotalCacheCreationInputTokens":[[:space:]]*[0-9]*' "$claude_json" | awk -F: '{print $2}' | tr -d ' ')
+        local cache_read_tokens=$(grep -o '"lastTotalCacheReadInputTokens":[[:space:]]*[0-9]*' "$claude_json" | awk -F: '{print $2}' | tr -d ' ')
+        
+        local cost=$(calculate_api_cost "${input_tokens:-0}" "${output_tokens:-0}" "${cache_creation_tokens:-0}" "${cache_read_tokens:-0}")
+        
+        echo "Input: ${input_tokens:-0}, Output: ${output_tokens:-0}, Cache Creation: ${cache_creation_tokens:-0}, Cache Read: ${cache_read_tokens:-0} - $cost"
+    else
+        echo "Token data unavailable"
+    fi
+}
+
 # Function to log entry to both main log and session log
 log_entry() {
     local message="$1"
@@ -75,6 +110,9 @@ merge_session_logs() {
         # Create header
         echo "# $DATE 作業ログ" > "$temp_file"
         echo "" >> "$temp_file"
+        echo "## Token Usage Summary ($(date +%H:%M))" >> "$temp_file"
+        echo "$(get_token_usage)" >> "$temp_file"
+        echo "" >> "$temp_file"
         echo "## セッション統合ログ ($(date +%H:%M)更新)" >> "$temp_file"
         echo "" >> "$temp_file"
         
@@ -114,9 +152,22 @@ log_command() {
     return $exit_code
 }
 
+# Function to log token snapshot
+log_token_snapshot() {
+    local tokens=$(get_token_usage)
+    log_entry "Token snapshot - $tokens"
+}
+
 # If called with 'merge' argument, run merge
 if [ "$1" = "merge" ]; then
     merge_session_logs
+fi
+
+# If called with 'snapshot' argument, log token snapshot
+if [ "$1" = "snapshot" ]; then
+    # Use a temporary session ID for snapshot logging
+    export CLAUDE_SESSION_ID="${CLAUDE_SESSION_ID:-snapshot-$(date +%s)}"
+    log_token_snapshot
 fi
 
 # Export functions for use in other scripts
@@ -125,3 +176,5 @@ export -f acquire_lock
 export -f release_lock
 export -f merge_session_logs
 export -f log_command
+export -f get_token_usage
+export -f log_token_snapshot
