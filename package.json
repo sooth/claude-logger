@@ -1,6 +1,6 @@
 {
   "name": "claude-analytics",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Advanced Claude Code analytics with real-time token tracking, cost analysis, usage heatmaps, and productivity insights",
   "main": "index.js",
   "bin": {
