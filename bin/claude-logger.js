@@ -495,7 +495,7 @@ echo "📝 Session ID: ${sessionId}"
         sessions: exportData
       };
       
-      const filename = `claude-logger-export-${timestamp}.json`;
+      const filename = `claude-analytics-export-${timestamp}.json`;
       const filepath = path.join(CLAUDE_LOGS_DIR, filename);
       fs.writeFileSync(filepath, JSON.stringify(jsonData, null, 2));
       console.log(`✅ JSON export saved: ${filepath}`);
@@ -528,7 +528,7 @@ echo "📝 Session ID: ${sessionId}"
         .map(row => row.map(cell => `"${cell}"`).join(','))
         .join('\n');
       
-      const filename = `claude-logger-export-${timestamp}.csv`;
+      const filename = `claude-analytics-export-${timestamp}.csv`;
       const filepath = path.join(CLAUDE_LOGS_DIR, filename);
       fs.writeFileSync(filepath, csvContent);
       console.log(`✅ CSV export saved: ${filepath}`);
@@ -546,16 +546,16 @@ const command = process.argv[2];
 const args = process.argv.slice(3);
 
 if (!command || !commands[command]) {
-  console.log('Claude Logger - Track your parallel coding sessions\n');
+  console.log('Claude Analytics - Advanced Claude Code analytics and insights\n');
   console.log('Usage:');
-  console.log('  claude-logger init            - Initialize and set up automatic logging');
-  console.log('  claude-logger start           - Start logging session');
-  console.log('  claude-logger stats           - View statistics with API cost analysis');
-  console.log('  claude-logger dashboard       - Real-time dashboard');
-  console.log('  claude-logger heatmap         - Token usage heatmap (find peak hours)');
-  console.log('  claude-logger timeline        - Project timeline visualization');
-  console.log('  claude-logger export [format] - Export data (csv/json)');
-  console.log('  claude-logger merge           - Merge all session logs');
+  console.log('  claude-analytics init            - Initialize and set up automatic logging');
+  console.log('  claude-analytics start           - Start logging session');
+  console.log('  claude-analytics stats           - View statistics with API cost analysis');
+  console.log('  claude-analytics dashboard       - Real-time dashboard');
+  console.log('  claude-analytics heatmap         - Token usage heatmap (find peak hours)');
+  console.log('  claude-analytics timeline        - Project timeline visualization');
+  console.log('  claude-analytics export [format] - Export data (csv/json)');
+  console.log('  claude-analytics merge           - Merge all session logs');
   process.exit(0);
 }
 

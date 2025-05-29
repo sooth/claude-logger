@@ -1,10 +1,10 @@
 {
-  "name": "claude-logger",
-  "version": "2.0.2",
-  "description": "The ultimate productivity tool for hardcore Claude Code users - Track all your parallel sessions in one place!",
+  "name": "claude-analytics",
+  "version": "3.0.0",
+  "description": "Advanced Claude Code analytics with real-time token tracking, cost analysis, usage heatmaps, and productivity insights",
   "main": "index.js",
   "bin": {
-    "claude-logger": "bin/claude-logger.js"
+    "claude-analytics": "bin/claude-logger.js"
   },
   "scripts": {
     "postinstall": "node scripts/setup.js"
@@ -12,19 +12,24 @@
   "keywords": [
     "claude",
     "claude-code",
-    "logging",
+    "analytics",
+    "token-tracking",
+    "cost-analysis",
     "productivity",
-    "multi-session",
+    "heatmaps",
+    "usage-statistics",
+    "api-cost",
+    "session-tracking",
     "parallel-computing",
-    "cost-optimization"
+    "anthropic"
   ],
-  "author": "Koichi Okawa <your.email@example.com>",
+  "author": "Enhanced by Claude Code Community",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daiokawa/claude-logger.git"
+    "url": "git+https://github.com/sooth/claude-logger.git"
   },
-  "homepage": "https://github.com/daiokawa/claude-logger#readme",
+  "homepage": "https://github.com/sooth/claude-logger#readme",
   "engines": {
     "node": ">=14.0.0"
   }

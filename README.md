@@ -1,4 +1,4 @@
-# Claude Logger 🚀 - Advanced Claude Code Analytics
+# Claude Analytics 🚀 - Advanced Claude Code Analytics
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude-Logger-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyUzYuNDggMjIgMTIgMjJTMjIgMTcuNTIgMjIgMTJTMTcuNTIgMiAxMiAyWk0xMiAyMEM3LjU4IDIwIDQgMTYuNDIgNCAxMlM3LjU4IDQgMTIgNFMyMCA3LjU4IDIwIDEyUzE2LjQyIDIwIDEyIDIwWiIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNOCA4SDE2VjEwSDhWOFoiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTTggMTJIMTZWMTRIOFYxMloiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+" alt="Claude Logger">
@@ -27,16 +27,16 @@ This fork adds **comprehensive token tracking and analytics** that the original 
 
 ```bash
 # Install globally
-npm install -g claude-logger
+npm install -g claude-analytics
 
 # Initialize automatic logging
-claude-logger init
+claude-analytics init
 
 # Start logging in any terminal
-claude-logger start
+claude-analytics start
 
 # View enhanced statistics
-claude-logger stats
+claude-analytics stats
 ```
 
 ## 📊 Features Overview
@@ -45,7 +45,7 @@ claude-logger stats
 Understand exactly how much your Claude Max subscription saves you:
 
 ```bash
-$ claude-logger stats
+$ claude-analytics stats
 
 📈 Statistics:
 Active sessions: 30
@@ -73,7 +73,7 @@ Claude 3.5 Haiku: $0.17 (0.1% of subscription)
 Find your most productive hours with visual token usage patterns:
 
 ```bash
-$ claude-logger heatmap
+$ claude-analytics heatmap
 
 📊 Hourly Token Usage Pattern:
 00:00 │░░░░░░░░░░░░░░░░░░░░│ 0 tokens
@@ -100,7 +100,7 @@ Night (00-06): 0 tokens
 Track your session patterns and parallel work efficiency:
 
 ```bash
-$ claude-logger timeline
+$ claude-analytics timeline
 
 🕐 Session Timeline (Recent):
 🔴 13:39 - 15:09 (1h 30m) | Session: ...64164
@@ -121,14 +121,14 @@ Export your productivity data for external analysis:
 
 ```bash
 # Export to CSV
-$ claude-logger export csv
+$ claude-analytics export csv
 📊 Exporting data in CSV format...
-✅ CSV export saved: ~/Documents/claude-logs/claude-logger-export-2025-05-29.csv
+✅ CSV export saved: ~/Documents/claude-logs/claude-analytics-export-2025-05-29.csv
 
 # Export to JSON
-$ claude-logger export json
+$ claude-analytics export json
 📊 Exporting data in JSON format...
-✅ JSON export saved: ~/Documents/claude-logs/claude-logger-export-2025-05-29.json
+✅ JSON export saved: ~/Documents/claude-logs/claude-analytics-export-2025-05-29.json
 
 📈 Export Summary:
 Sessions exported: 30
@@ -140,16 +140,16 @@ Total tokens: 4,020,030
 
 ### Option 1: Global Install (Recommended)
 ```bash
-npm install -g claude-logger
-claude-logger init
+npm install -g claude-analytics
+claude-analytics init
 ```
 
 ### Option 2: Manual Setup
 ```bash
-git clone https://github.com/sooth/claude-logger.git
-cd claude-logger
+git clone https://github.com/sooth/claude-analytics.git
+cd claude-analytics
 npm install -g .
-claude-logger init
+claude-analytics init
 ```
 
 The `init` command will:
@@ -164,27 +164,27 @@ The `init` command will:
 
 ```bash
 # View comprehensive statistics
-claude-logger stats
+claude-analytics stats
 
 # Real-time dashboard
-claude-logger dashboard
+claude-analytics dashboard
 
 # Generate usage heatmaps
-claude-logger heatmap
+claude-analytics heatmap
 
 # View session timeline
-claude-logger timeline
+claude-analytics timeline
 
 # Export data
-claude-logger export csv    # or json
+claude-analytics export csv    # or json
 
 # Merge session logs
-claude-logger merge
+claude-analytics merge
 ```
 
 ### Starting Sessions
 
-After running `claude-logger init`, you have two options:
+After running `claude-analytics init`, you have two options:
 
 1. **Use the wrapper** (automatic):
    ```bash
@@ -193,7 +193,7 @@ After running `claude-logger init`, you have two options:
 
 2. **Manual activation** per terminal:
    ```bash
-   claude-logger start  # Then follow instructions
+   claude-analytics start  # Then follow instructions
    ```
 
 ## 💡 Understanding Your Data
@@ -237,9 +237,9 @@ claude-logs/
 ## 🚨 Troubleshooting
 
 ### Sessions not logging?
-1. Restart your terminal after running `claude-logger init`
+1. Restart your terminal after running `claude-analytics init`
 2. Check that `~/Documents/claude-logs/sessions/` exists
-3. Try `claude-logger start` in each terminal
+3. Try `claude-analytics start` in each terminal
 
 ### Token data not showing?
 1. Ensure you're using Claude Code (not Claude web interface)
@@ -248,12 +248,12 @@ claude-logs/
 
 ### Export files empty?
 1. Wait for token snapshots to be generated (every 5 minutes)
-2. Use `claude-logged` wrapper or manual `claude-logger start`
+2. Use `claude-logged` wrapper or manual `claude-analytics start`
 3. Check session logs in `~/Documents/claude-logs/sessions/`
 
 ## 🤝 Contributing
 
-This is an enhanced fork of the original claude-logger. Contributions welcome!
+This is an enhanced fork of the original claude-logger, now published as claude-analytics. Contributions welcome!
 
 1. Fork this repository
 2. Create a feature branch
@@ -274,6 +274,6 @@ MIT License - see LICENSE file for details.
 
 **Track smarter. Code better. Optimize everything.**
 
-[![npm version](https://badge.fury.io/js/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
-[![Downloads](https://img.shields.io/npm/dm/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
+[![npm version](https://badge.fury.io/js/claude-analytics.svg)](https://www.npmjs.com/package/claude-analytics)
+[![Downloads](https://img.shields.io/npm/dm/claude-analytics.svg)](https://www.npmjs.com/package/claude-analytics)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
