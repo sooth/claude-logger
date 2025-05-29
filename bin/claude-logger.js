@@ -166,7 +166,7 @@ echo "📝 Session ID: ${sessionId}"
     
     console.log('\n📈 Statistics:');
     console.log(`Active sessions: ${sessionFiles.length}`);
-    console.log(`\n🎯 Token Usage:`);
+    console.log(`\n🎯 Project Token Usage (current project total):`);
     console.log(`Input tokens: ${tokenData.input.toLocaleString()}`);
     console.log(`Output tokens: ${tokenData.output.toLocaleString()}`);
     console.log(`Cache creation tokens: ${tokenData.cacheCreation.toLocaleString()}`);
@@ -211,13 +211,14 @@ echo "📝 Session ID: ${sessionId}"
     const totalTokens = tokenData.input + tokenData.output + tokenData.cacheCreation + tokenData.cacheRead;
     const apiCosts = calculateAPICosts(tokenData);
     
-    console.log('🎯 Real-time Token Usage:');
+    console.log('🎯 Project-wide Token Usage (cumulative):');
     console.log(`Total tokens: ${totalTokens.toLocaleString()}`);
     console.log(`Input: ${tokenData.input.toLocaleString()}, Output: ${tokenData.output.toLocaleString()}`);
     console.log(`Cache Creation: ${tokenData.cacheCreation.toLocaleString()}, Cache Read: ${tokenData.cacheRead.toLocaleString()}`);
     
     console.log(`\n💰 Cost vs API pricing:`);
-    console.log(`Claude Max: $200/month | API costs would be: Opus $${apiCosts['claude-4-opus'].toFixed(2)}, Sonnet $${apiCosts['claude-4-sonnet'].toFixed(2)}, Haiku $${apiCosts['claude-3.5-haiku'].toFixed(2)}\n`);
+    console.log(`Claude Max: $200/month | API costs would be: Opus $${apiCosts['claude-4-opus'].toFixed(2)}, Sonnet $${apiCosts['claude-4-sonnet'].toFixed(2)}, Haiku $${apiCosts['claude-3.5-haiku'].toFixed(2)}`);
+    console.log(`📝 Note: Numbers show total project usage, not per-session\n`);
     
     // Check for active sessions
     const sessionsDir = path.join(CLAUDE_LOGS_DIR, 'sessions');

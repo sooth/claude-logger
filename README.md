@@ -204,6 +204,8 @@ After running `claude-analytics init`, you have two options:
 - **Cache creation tokens**: Building prompt cache (90% discount available)
 - **Cache read tokens**: Reading from prompt cache (huge savings)
 
+**Important**: Token numbers show **cumulative project totals**, not per-session usage. This is how Claude Code tracks usage - by project, not individual sessions. All sessions in the same project will show the same total numbers.
+
 ### Cost Savings Analysis
 The cost comparison shows how much you would pay with different Claude API tiers:
 - **Claude 4 Opus**: Premium model ($15/$75 per million tokens)

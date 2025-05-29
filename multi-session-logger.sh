@@ -152,10 +152,24 @@ log_command() {
     return $exit_code
 }
 
-# Function to log token snapshot
+# Function to log token snapshot with change tracking
 log_token_snapshot() {
     local tokens=$(get_token_usage)
-    log_entry "Token snapshot - $tokens"
+    local session_file="$SESSION_LOG"
+    local last_snapshot=""
+    
+    # Try to find the last token snapshot in this session
+    if [ -f "$session_file" ]; then
+        last_snapshot=$(grep "Token snapshot" "$session_file" | tail -1 | cut -d'-' -f2- | xargs)
+    fi
+    
+    if [ -n "$last_snapshot" ] && [ "$last_snapshot" != "$tokens" ]; then
+        log_entry "Token snapshot - $tokens (CHANGED from previous)"
+    elif [ -n "$last_snapshot" ]; then
+        log_entry "Token snapshot - $tokens (same as previous)"
+    else
+        log_entry "Token snapshot - $tokens (first snapshot)"
+    fi
 }
 
 # If called with 'merge' argument, run merge
