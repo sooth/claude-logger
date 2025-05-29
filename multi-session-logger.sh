@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Claude Logger - Multi-session support with file locking
+# Claude Analytics - Multi-session support with file locking
 # Prevents conflicts when multiple Claude sessions write to the same log file
 
 LOG_DIR="$HOME/Documents/claude-logs"

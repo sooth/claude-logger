@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Claude Logger Setup Script
+# Claude Analytics Setup Script
 # This script sets up automatic logging for all Claude sessions
 
-echo "🚀 Setting up Claude Logger..."
+echo "🚀 Setting up Claude Analytics..."
 
 # Get the directory of claude-logger
 CLAUDE_LOGGER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -80,7 +80,7 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
 fi
 
 echo ""
-echo "✅ Claude Logger setup complete!"
+echo "✅ Claude Analytics setup complete!"
 echo ""
 echo "🎯 Next steps:"
 echo "1. Restart your terminal or run: source ~/.zshrc"

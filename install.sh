@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Claude Logger Installer
-# One-line install: curl -fsSL https://raw.githubusercontent.com/daiokawa/claude-logger/main/install.sh | bash
+# Claude Analytics Installer
+# One-line install: curl -fsSL https://raw.githubusercontent.com/sooth/claude-logger/main/install.sh | bash
 
 set -e
 
-echo "🚀 Installing Claude Logger..."
+echo "🚀 Installing Claude Analytics..."
 
 # Check if npm is installed
 if ! command -v npm &> /dev/null; then
@@ -14,22 +14,22 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
-# Install claude-logger globally
-echo "📦 Installing claude-logger via npm..."
-npm install -g claude-logger
+# Install claude-analytics globally
+echo "📦 Installing claude-analytics via npm..."
+npm install -g claude-analytics
 
-# Initialize claude-logger
-echo "🔧 Initializing claude-logger..."
-claude-logger init
+# Initialize claude-analytics
+echo "🔧 Initializing claude-analytics..."
+claude-analytics init
 
 echo ""
-echo "✅ Claude Logger installed successfully!"
+echo "✅ Claude Analytics installed successfully!"
 echo ""
 echo "🎯 Next steps:"
 echo "1. Open each Claude terminal"
-echo "2. Run: claude-logger start"
-echo "3. View stats: claude-logger dashboard"
+echo "2. Run: claude-analytics start"
+echo "3. View stats: claude-analytics dashboard"
 echo ""
-echo "📚 Documentation: https://github.com/daiokawa/claude-logger"
+echo "📚 Documentation: https://github.com/sooth/claude-logger"
 echo ""
-echo "Happy parallel coding! 🚀"
+echo "Happy parallel coding with advanced analytics! 🚀"
