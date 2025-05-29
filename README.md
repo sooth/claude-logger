@@ -1,277 +1,278 @@
-# Claude Logger 🚀 - For Hardcore Claude Code Users
-
-[日本語版 README](./README.ja.md)
+# Claude Logger 🚀 - Advanced Claude Code Analytics
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude-Logger-blue?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyUzYuNDggMjIgMTIgMjJTMjIgMTcuNTIgMjIgMTJTMTcuNTIgMiAxMiAyWk0xMiAyMEM3LjU4IDIwIDQgMTYuNDIgNCAxMlM3LjU4IDQgMTIgNFMyMCA3LjU4IDIwIDEyUzE2LjQyIDIwIDEyIDIwWiIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNOCA4SDE2VjEwSDhWOFoiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTTggMTJIMTZWMTRIOFYxMloiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+" alt="Claude Logger">
   <br>
   <img src="https://img.shields.io/npm/v/claude-logger?style=flat-square" alt="npm version">
   <img src="https://img.shields.io/npm/dm/claude-logger?style=flat-square" alt="npm downloads">
-  <img src="https://img.shields.io/github/stars/daiokawa/claude-logger?style=flat-square" alt="GitHub stars">
   <img src="https://img.shields.io/github/license/daiokawa/claude-logger?style=flat-square" alt="License">
 </p>
 
 <p align="center">
-  <b>🔥 Track ALL your parallel Claude sessions. Justify that $200/month. 🔥</b>
+  <b>🔥 Track ALL your Claude sessions with advanced analytics and cost insights 🔥</b>
 </p>
 
-## 💸 The Math That Changes Everything
+## ✨ What's New in This Enhanced Version
 
-**Claude Max ($200/month) - Work harder and reduce your cost virtually**
+This fork adds **comprehensive token tracking and analytics** that the original version was missing:
 
-🧮 Revolutionary Cost Calculation:
-- 1 session = $200/month
-- 4 parallel sessions = $50/month per session*
-- 8 parallel sessions = $25/month per session**
-- 16 parallel sessions = $12.50/month per session***
-- 32 parallel sessions = PRACTICALLY FREE!****
+- **💰 Real API Cost Analysis** - See exactly how much you save with Claude Max vs pay-per-token pricing
+- **🔥 Token Usage Heatmaps** - Discover your peak productivity hours with visual analytics
+- **📅 Project Timeline Visualization** - Track session duration and parallel work patterns
+- **📊 Advanced Export System** - Export data to CSV/JSON for external analysis
+- **🎯 Enhanced Statistics** - Detailed breakdowns of input/output/cache token usage
+- **⚡ Real-time Tracking** - Live token snapshots every 5 minutes
 
-<sub>* Not actual pricing. You still pay $200/month.</sub>  
-<sub>** Still $200/month. But divided by 8 sounds better!</sub>  
-<sub>*** Your electricity bill might disagree.</sub>  
-<sub>**** CPU has left the chat.</sub>
+## 🚀 Quick Start
 
-### 🎯 "The more sessions you run, the cheaper each one becomes!" 
-*(Disclaimer: This is not how money works. But it IS how we justify things to ourselves.)*
+```bash
+# Install globally
+npm install -g claude-logger
 
-### You're already running multiple Claudes. Now RATIONALIZE IT with MATH!
+# Initialize automatic logging
+claude-logger init
 
-## 🔥 What is Claude Logger?
+# Start logging in any terminal
+claude-logger start
 
-The **ULTIMATE** productivity tool for power users who run multiple Claude Code sessions simultaneously. Track EVERYTHING. Analyze EVERYTHING. Optimize EVERYTHING.
+# View enhanced statistics
+claude-logger stats
+```
 
-### 📊 Every 15 minutes, automatically:
-- Logs all active sessions
-- Tracks token usage
-- Records project progress  
-- Prevents log conflicts
-- Creates unified timeline
+## 📊 Features Overview
 
-## 💪 Built for the 1% of Claude Users
+### 💰 API Cost Analysis
+Understand exactly how much your Claude Max subscription saves you:
 
-You know who you are:
-- Running 4+ Claude terminals
-- Juggling 10+ projects  
-- Burning through millions of tokens
-- Need to justify that $200/month
+```bash
+$ claude-logger stats
 
-### 🖥️ Platform Support
-- ✅ macOS
-- ✅ Linux
-- ✅ Windows (WSL)
+📈 Statistics:
+Active sessions: 30
 
-## 🛠️ Installation
+🎯 Token Usage:
+Input tokens: 31,154
+Output tokens: 6,181
+Cache creation tokens: 60,571
+Cache read tokens: 706,100
+Total tokens: 804,006
 
-### Quick Install (Recommended)
+💰 Cost Analysis:
+Claude Max subscription: $200/month
+Cost per session: $6.67
 
+🚨 API Cost Comparison (if using pay-per-token):
+Claude 4 Opus:    $3.13 (1.6% of subscription)
+Claude 4 Sonnet:  $0.63 (0.3% of subscription)
+Claude 3.5 Haiku: $0.17 (0.1% of subscription)
+
+💎 Subscription savings: $196.87 (98.4% saved vs most expensive API)
+```
+
+### 🔥 Token Usage Heatmaps
+Find your most productive hours with visual token usage patterns:
+
+```bash
+$ claude-logger heatmap
+
+📊 Hourly Token Usage Pattern:
+00:00 │░░░░░░░░░░░░░░░░░░░░│ 0 tokens
+01:00 │░░░░░░░░░░░░░░░░░░░░│ 0 tokens
+02:00 │░░░░░░░░░░░░░░░░░░░░│ 0 tokens
+...
+08:00 │█████████████░░░░░░░│ 1,608,012 tokens
+09:00 │████████████████████│ 2,412,018 tokens
+10:00 │░░░░░░░░░░░░░░░░░░░░│ 0 tokens
+...
+
+🎯 Peak Usage Analysis:
+Peak hour: 09:00 (2,412,018 tokens)
+Quietest hour: 08:00
+
+⏰ Time Period Analysis:
+Morning (06-12): 4,020,030 tokens
+Afternoon (12-18): 0 tokens
+Evening (18-24): 0 tokens
+Night (00-06): 0 tokens
+```
+
+### 📅 Project Timeline Visualization
+Track your session patterns and parallel work efficiency:
+
+```bash
+$ claude-logger timeline
+
+🕐 Session Timeline (Recent):
+🔴 13:39 - 15:09 (1h 30m) | Session: ...64164
+🔴 13:47 - 13:47 (0m) | Session: ...94153
+🟢 13:47 - ongoing (active) | Session: ...95227
+🟢 13:49 - ongoing (active) | Session: ...96635
+🟢 14:01 - ongoing (active) | Session: ...55296
+🔴 14:50 - 15:12 (22m) | Session: ...90815
+
+📊 Summary:
+Total sessions tracked: 30
+Currently active: 15
+Completed today: 15
+```
+
+### 📊 Data Export
+Export your productivity data for external analysis:
+
+```bash
+# Export to CSV
+$ claude-logger export csv
+📊 Exporting data in CSV format...
+✅ CSV export saved: ~/Documents/claude-logs/claude-logger-export-2025-05-29.csv
+
+# Export to JSON
+$ claude-logger export json
+📊 Exporting data in JSON format...
+✅ JSON export saved: ~/Documents/claude-logs/claude-logger-export-2025-05-29.json
+
+📈 Export Summary:
+Sessions exported: 30
+Active sessions: 15
+Total tokens: 4,020,030
+```
+
+## 🛠️ Installation & Setup
+
+### Option 1: Global Install (Recommended)
 ```bash
 npm install -g claude-logger
 claude-logger init
 ```
 
-This will:
-- Set up automatic logging for all terminals
-- Configure 15-minute interval snapshots
-- Create session tracking directories
-- Add shell integration
-
-### Manual Install
-
+### Option 2: Manual Setup
 ```bash
-npm install -g claude-logger
+git clone https://github.com/sooth/claude-logger.git
+cd claude-logger
+npm install -g .
+claude-logger init
 ```
 
-## 🚀 Usage
+The `init` command will:
+- Set up automatic logging for all terminals
+- Configure 5-minute token snapshots and 15-minute log merging
+- Create session tracking directories
+- Add shell integration to your `.zshrc`
 
-### After Installation
+## 🎯 Usage
 
-1. **Start a new terminal** (required for shell integration)
+### Basic Commands
 
-2. **For each Claude session**, either:
-   ```bash
-   claude-logger start  # Then follow the instructions
-   ```
-   
-   OR use the wrapper:
+```bash
+# View comprehensive statistics
+claude-logger stats
+
+# Real-time dashboard
+claude-logger dashboard
+
+# Generate usage heatmaps
+claude-logger heatmap
+
+# View session timeline
+claude-logger timeline
+
+# Export data
+claude-logger export csv    # or json
+
+# Merge session logs
+claude-logger merge
+```
+
+### Starting Sessions
+
+After running `claude-logger init`, you have two options:
+
+1. **Use the wrapper** (automatic):
    ```bash
    claude-logged  # Instead of 'claude'
    ```
 
-3. **View your logs**:
+2. **Manual activation** per terminal:
    ```bash
-   claude-logger dashboard  # Real-time session view
-   claude-logger stats      # Today's statistics
-   claude-logger merge      # Merge all session logs
+   claude-logger start  # Then follow instructions
    ```
 
-That's it. Now you're tracking EVERYTHING.
+## 💡 Understanding Your Data
 
-## 📈 What You Can Do With This Data
+### Token Types Explained
+- **Input tokens**: Text you send to Claude
+- **Output tokens**: Claude's responses
+- **Cache creation tokens**: Building prompt cache (90% discount available)
+- **Cache read tokens**: Reading from prompt cache (huge savings)
 
-### 1. **Productivity Analytics**
-```bash
-claude-logger stats --this-week
+### Cost Savings Analysis
+The cost comparison shows how much you would pay with different Claude API tiers:
+- **Claude 4 Opus**: Premium model ($15/$75 per million tokens)
+- **Claude 4 Sonnet**: Balanced model ($3/$15 per million tokens)  
+- **Claude 3.5 Haiku**: Fast model ($0.80/$4 per million tokens)
+
+Your Claude Max subscription provides unlimited usage for $200/month, typically saving 95%+ vs API pricing.
+
+### Productivity Insights
+- **Heatmaps** reveal your most productive hours
+- **Timeline** shows session overlap and parallel efficiency
+- **Export data** enables custom analysis in Excel, Python, etc.
+
+## 🖥️ Platform Support
+- ✅ macOS
+- ✅ Linux  
+- ✅ Windows (WSL)
+
+## 📁 File Structure
+
+Your logs are organized in `~/Documents/claude-logs/`:
 ```
-```
-Peak productivity: Tuesday 2-4 PM (8 concurrent sessions)
-Token velocity: 2.3M tokens/hour
-Sessions completed: 47 projects
-```
-
-### 2. **Project Timeline Visualization**
-```bash
-claude-logger timeline --export
-```
-Generate beautiful Gantt charts showing all parallel work streams.
-
-### 3. **Parallel Efficiency Reports**
-```bash
-claude-logger efficiency --monthly
-```
-```
-Total sessions: 847
-Parallel efficiency: 4.2x
-Average concurrent sessions: 6.3
-
-🎤 PRODUCTIVITY MULTIPLIER 🎤
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Running 4 sessions? 4x the output!
-Running 8 sessions? 8x the productivity!!
-Running 16 sessions? SUPERHUMAN CODING!!!
-
-BUT WAIT, THERE'S MORE!
-
-Running 32 sessions? YOU ARE THE MATRIX!!!!
-※Your computer might explode
-
-*All for the same $200/month. Unlimited tokens.
- The more you run, the more you get done!
+claude-logs/
+├── 2025-05-29.md              # Daily merged logs
+├── sessions/                  # Individual session logs
+│   ├── 1748366389-48238.log   # Session-specific tracking
+│   └── 1748366671-51644.log
+└── claude-logger-export-*.csv # Exported data files
 ```
 
-### 4. **Token Usage Heatmaps**
-Find your most productive hours. Optimize your schedule. DOMINATE.
-
-### 5. **Project Success Predictor**
-ML-powered analysis of your work patterns. Know which projects will succeed before you start.
-
-## 🎯 Features That Matter
-
-- **Zero Config** - Just works
-- **File Locking** - No conflicts with 100 parallel sessions
-- **Session Intelligence** - Knows which terminal is doing what
-- **15-Min Snapshots** - Perfect granularity for analysis
-- **Git-Ready** - Version control your productivity
-- **Export Everything** - CSV, JSON, SQL, whatever you need
-
-## 💡 Imaginary User Stories
-
-> "I run 8 Claude sessions for my startup. This tool showed me I was wasting 3 hours daily on context switching. Fixed it. Revenue up 40%." - **Startup Founder**
-
-> "Tracked 2.1 million tokens across 6 projects. Found my 'golden hours' are 11pm-3am. Now I plan around it." - **Solo Developer**
-
-> "Company thought I was slacking. Showed them my Claude Logger stats. Got promoted." - **Senior Engineer**
-
-## 📊 Sample Output
-
-```markdown
-## 2025-05-26 15:00 - System Summary
-- Active Sessions: 6
-- Total Tokens: 3,247,891
-- Projects in Progress: 
-  - Terminal 1: E-commerce Platform (87% complete)
-    • Added Stripe payment integration
-    • Fixed cart calculation bug
-    • Implemented order tracking API
-  - Terminal 2: ML Pipeline (32% complete)
-    • Set up TensorFlow environment
-    • Created data preprocessing scripts
-    • Training model on sample dataset
-  - Terminal 3: iOS App (64% complete)
-    • Designed user authentication flow
-    • Integrated push notifications
-    • Fixed memory leak in image picker
-  - Terminal 4: API Documentation (91% complete)
-    • Generated OpenAPI specs
-    • Added authentication examples
-    • Writing rate limiting guide
-  - Terminal 5: Database Migration (15% complete)
-    • Backed up production data
-    • Created migration scripts
-    • Testing rollback procedures
-  - Terminal 6: Performance Testing (43% complete)
-    • Set up k6 load testing
-    • Identified N+1 query issues
-    • Optimizing database indexes
-
-## Timeline (Last 15 minutes)
-14:45 - Terminal 1: Deployed payment integration to staging
-14:47 - Terminal 5: Started backing up user_transactions table (2.3GB)
-14:48 - Terminal 4: Generated API docs for new endpoints
-14:50 - Terminal 2: Model training reached 10k iterations (loss: 0.231)
-14:52 - Terminal 3: Fixed critical bug in photo upload feature
-14:53 - Terminal 1: Running integration tests for checkout flow
-14:55 - Terminal 6: Load test showing 430ms p95 latency
-14:57 - Terminal 5: Migration dry-run completed successfully
-14:58 - Terminal 2: Saved checkpoint at epoch 15
-15:00 - Terminal 4: Published docs to internal wiki
-```
-
-## 🔮 Coming Soon
-
-- **Claude Logger Pro** - Real-time dashboard
-- **Team Edition** - Track your whole team's Claude usage
-- **AI Insights** - GPT-4 analysis of your work patterns
-- **Slack Integration** - Daily productivity summaries
-- **VS Code Extension** - See stats without leaving editor
-
-## 🐛 Troubleshooting
+## 🚨 Troubleshooting
 
 ### Sessions not logging?
-1. Make sure you ran `claude-logger init`
-2. Restart your terminal after init
-3. Use `claude-logger start` in each terminal
-4. Check `~/Documents/claude-logs/sessions/` for log files
+1. Restart your terminal after running `claude-logger init`
+2. Check that `~/Documents/claude-logs/sessions/` exists
+3. Try `claude-logger start` in each terminal
 
-### Logs not merging?
-Run manually: `claude-logger merge`
+### Token data not showing?
+1. Ensure you're using Claude Code (not Claude web interface)
+2. Check that `~/.claude.json` exists and contains project data
+3. Run a few Claude commands to generate token usage
 
-### Need help?
-Create an issue: https://github.com/daiokawa/claude-logger/issues
+### Export files empty?
+1. Wait for token snapshots to be generated (every 5 minutes)
+2. Use `claude-logged` wrapper or manual `claude-logger start`
+3. Check session logs in `~/Documents/claude-logs/sessions/`
 
-## 🤝 Join the Movement
+## 🤝 Contributing
 
-This isn't just a logger. It's a heal for ADHDers like us.
+This is an enhanced fork of the original claude-logger. Contributions welcome!
 
-**Work Smarter. Track Everything. Optimize Relentlessly.**
+1. Fork this repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
----
+## 📝 License
 
-### Installation
+MIT License - see LICENSE file for details.
 
-```bash
-npm install -g claude-logger
-claude-logger init
-```
+## 🙏 Credits
 
-### Start Logging Your Empire
-
-```bash
-# In each Claude terminal:
-claude-logger start
-
-# View real-time stats:
-claude-logger dashboard
-
-# Export for analysis:
-claude-logger export --format csv
-```
+- Original claude-logger by [@daiokawa](https://github.com/daiokawa)
+- Enhanced with comprehensive analytics and token tracking
+- Built for the Claude Code power user community
 
 ---
 
-**Built by Koichi Okawa**
-- GitHub: [@daiokawa](https://github.com/daiokawa)
-- Twitter: [@daiokawa](https://twitter.com/daiokawa)
-- HendonMob: [Koichi Okawa](https://pokerdb.thehendonmob.com/player.php?a=r&n=230741)
+**Track smarter. Code better. Optimize everything.**
 
 [![npm version](https://badge.fury.io/js/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
 [![Downloads](https://img.shields.io/npm/dm/claude-logger.svg)](https://www.npmjs.com/package/claude-logger)
