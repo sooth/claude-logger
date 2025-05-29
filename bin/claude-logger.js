@@ -182,9 +182,17 @@ echo "📝 Session ID: ${sessionId}"
     console.log(`Claude 4 Sonnet:  $${apiCosts['claude-4-sonnet'].toFixed(2)} (${(apiCosts['claude-4-sonnet'] / 200 * 100).toFixed(1)}% of subscription)`);
     console.log(`Claude 3.5 Haiku: $${apiCosts['claude-3.5-haiku'].toFixed(2)} (${(apiCosts['claude-3.5-haiku'] / 200 * 100).toFixed(1)}% of subscription)`);
     
-    const maxSavings = Math.max(...Object.values(apiCosts));
-    const savings = 200 - maxSavings;
-    console.log(`\n💎 Subscription savings: $${savings.toFixed(2)} (${(savings / 200 * 100).toFixed(1)}% saved vs most expensive API)`);
+    const mostExpensiveApiCost = Math.max(...Object.values(apiCosts));
+    const cheapestApiCost = Math.min(...Object.values(apiCosts));
+    
+    if (mostExpensiveApiCost < 200) {
+      const overpay = 200 - cheapestApiCost;
+      console.log(`\n💸 Reality Check: You're paying $${overpay.toFixed(2)} more than needed (${((overpay / 200) * 100).toFixed(1)}% overpay)`);
+      console.log(`📊 Break-even: You'd need ${Math.ceil(200 / mostExpensiveApiCost)}x more usage to justify the subscription`);
+    } else {
+      const savings = mostExpensiveApiCost - 200;
+      console.log(`\n💎 Subscription value: Saving $${savings.toFixed(2)} vs most expensive API (${((savings / mostExpensiveApiCost) * 100).toFixed(1)}% savings)`);
+    }
     
     if (sessionFiles.length > 0) {
       console.log('\n🔄 Active Sessions:');
