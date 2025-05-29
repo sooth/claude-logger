@@ -4,15 +4,24 @@ const { exec, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { getAggregatedStats } = require('./jsonl-parser');
 
 const CLAUDE_LOGS_DIR = path.join(os.homedir(), 'Documents', 'claude-logs');
 const CLAUDE_LOGGER_DIR = path.dirname(__dirname);
 
 // Claude API pricing (per million tokens)
+// Using patterns to match model variations
+const CLAUDE_PRICING_PATTERNS = [
+  { pattern: /claude-opus-4/i, pricing: { input: 15.00, output: 75.00, cacheCreation: 18.75, cacheRead: 1.50 }, name: 'claude-4-opus' },
+  { pattern: /claude-sonnet-4/i, pricing: { input: 3.00, output: 15.00, cacheCreation: 3.75, cacheRead: 0.30 }, name: 'claude-4-sonnet' },
+  { pattern: /claude-3\.5-haiku/i, pricing: { input: 0.80, output: 4.00, cacheCreation: 1.00, cacheRead: 0.08 }, name: 'claude-3.5-haiku' }
+];
+
+// Legacy pricing for backwards compatibility
 const CLAUDE_PRICING = {
-  'claude-4-opus': { input: 15.00, output: 75.00, cacheCreation: 18.75, cacheRead: 1.50 },
-  'claude-4-sonnet': { input: 3.00, output: 15.00, cacheCreation: 3.75, cacheRead: 0.30 },
-  'claude-3.5-haiku': { input: 0.80, output: 4.00, cacheCreation: 1.00, cacheRead: 0.08 }
+  'claude-4-opus': CLAUDE_PRICING_PATTERNS[0].pricing,
+  'claude-4-sonnet': CLAUDE_PRICING_PATTERNS[1].pricing,
+  'claude-3.5-haiku': CLAUDE_PRICING_PATTERNS[2].pricing
 };
 
 // Calculate API costs for given token usage
@@ -149,7 +158,7 @@ echo "📝 Session ID: ${sessionId}"
     console.log('Or use the wrapper: claude-logged');
   },
   
-  stats: (period = 'today') => {
+  stats: async (period = 'today') => {
     console.log(`📊 Generating stats for: ${period}`);
     
     const sessionFiles = fs.readdirSync(path.join(CLAUDE_LOGS_DIR, 'sessions'))
@@ -158,15 +167,51 @@ echo "📝 Session ID: ${sessionId}"
     const today = new Date().toISOString().split('T')[0];
     const todayLog = path.join(CLAUDE_LOGS_DIR, `${today}.md`);
     
-    // Read token usage from .claude.json
-    const tokenData = getTokenUsage();
+    // Try to get stats from JSONL files first
+    let tokenData, apiCosts, usingJSONL = false, jsonlStats = null;
+    
+    try {
+      jsonlStats = await getAggregatedStats();
+      if (jsonlStats.totalRequests > 0) {
+        // Convert JSONL stats to tokenData format
+        tokenData = {
+          input: jsonlStats.usage.input_tokens,
+          output: jsonlStats.usage.output_tokens,
+          cacheCreation: jsonlStats.usage.cache_creation_input_tokens,
+          cacheRead: jsonlStats.usage.cache_read_input_tokens
+        };
+        
+        // Use actual costs from JSONL with pattern matching
+        const findModelCost = (pattern) => {
+          const modelKey = Object.keys(jsonlStats.byModel).find(key => 
+            key.toLowerCase().includes(pattern.toLowerCase())
+          );
+          return modelKey ? jsonlStats.byModel[modelKey].cost : 0;
+        };
+        
+        apiCosts = {
+          'claude-4-opus': findModelCost('claude-opus-4'),
+          'claude-4-sonnet': findModelCost('claude-sonnet-4'),
+          'claude-3.5-haiku': findModelCost('claude-3.5-haiku'),
+          'actual': jsonlStats.totalCost
+        };
+        usingJSONL = true;
+        
+        console.log(`\n📊 Found ${jsonlStats.totalRequests} API calls across ${Object.keys(jsonlStats.byProject).length} projects`);
+      } else {
+        throw new Error('No JSONL data found');
+      }
+    } catch (e) {
+      // Fallback to .claude.json
+      tokenData = getTokenUsage();
+      apiCosts = calculateAPICosts(tokenData);
+    }
     
     const totalTokens = tokenData.input + tokenData.output + tokenData.cacheCreation + tokenData.cacheRead;
-    const apiCosts = calculateAPICosts(tokenData);
     
     console.log('\n📈 Statistics:');
     console.log(`Active sessions: ${sessionFiles.length}`);
-    console.log(`\n🎯 Project Token Usage (current project total):`);
+    console.log(`\n🎯 Token Usage ${usingJSONL ? '(from JSONL files)' : '(from .claude.json)'}:`);
     console.log(`Input tokens: ${tokenData.input.toLocaleString()}`);
     console.log(`Output tokens: ${tokenData.output.toLocaleString()}`);
     console.log(`Cache creation tokens: ${tokenData.cacheCreation.toLocaleString()}`);
@@ -177,13 +222,40 @@ echo "📝 Session ID: ${sessionId}"
     console.log(`Claude Max subscription: $200/month`);
     console.log(`Cost per session: $${(200 / Math.max(1, sessionFiles.length)).toFixed(2)}`);
     
-    console.log(`\n🚨 API Cost Comparison (if using pay-per-token):`);
-    console.log(`Claude 4 Opus:    $${apiCosts['claude-4-opus'].toFixed(2)} (${(apiCosts['claude-4-opus'] / 200 * 100).toFixed(1)}% of subscription)`);
-    console.log(`Claude 4 Sonnet:  $${apiCosts['claude-4-sonnet'].toFixed(2)} (${(apiCosts['claude-4-sonnet'] / 200 * 100).toFixed(1)}% of subscription)`);
-    console.log(`Claude 3.5 Haiku: $${apiCosts['claude-3.5-haiku'].toFixed(2)} (${(apiCosts['claude-3.5-haiku'] / 200 * 100).toFixed(1)}% of subscription)`);
+    if (usingJSONL && apiCosts.actual) {
+      console.log(`\n🚨 Actual API Costs (from usage logs):`);
+      console.log(`Total cost: $${apiCosts.actual.toFixed(2)}`);
+      console.log(`Subscription value: ${apiCosts.actual > 200 ? 
+        `Saving $${(apiCosts.actual - 200).toFixed(2)} (${((apiCosts.actual - 200) / apiCosts.actual * 100).toFixed(1)}% savings)` :
+        `Overpaying $${(200 - apiCosts.actual).toFixed(2)} (${((200 - apiCosts.actual) / 200 * 100).toFixed(1)}% overpay)`}`);
+      
+      // Display all models found in the data
+      if (jsonlStats && jsonlStats.byModel) {
+        const modelNames = Object.keys(jsonlStats.byModel).filter(model => 
+          model !== '<synthetic>' && jsonlStats.byModel[model].cost > 0
+        );
+        
+        if (modelNames.length > 0) {
+          console.log(`\nBy model:`);
+          modelNames.forEach(modelName => {
+            const modelData = jsonlStats.byModel[modelName];
+            const displayName = modelName
+              .replace(/claude-opus-4-\d+/, 'Claude 4 Opus')
+              .replace(/claude-sonnet-4-\d+/, 'Claude 4 Sonnet')
+              .replace(/claude-3\.5-haiku.*/, 'Claude 3.5 Haiku');
+            console.log(`${displayName}: $${modelData.cost.toFixed(2)} (${modelData.count} requests)`);
+          });
+        }
+      }
+    } else {
+      console.log(`\n🚨 API Cost Comparison (if using pay-per-token):`);
+      console.log(`Claude 4 Opus:    $${apiCosts['claude-4-opus'].toFixed(2)} (${(apiCosts['claude-4-opus'] / 200 * 100).toFixed(1)}% of subscription)`);
+      console.log(`Claude 4 Sonnet:  $${apiCosts['claude-4-sonnet'].toFixed(2)} (${(apiCosts['claude-4-sonnet'] / 200 * 100).toFixed(1)}% of subscription)`);
+      console.log(`Claude 3.5 Haiku: $${apiCosts['claude-3.5-haiku'].toFixed(2)} (${(apiCosts['claude-3.5-haiku'] / 200 * 100).toFixed(1)}% of subscription)`);
+    }
     
-    const mostExpensiveApiCost = Math.max(...Object.values(apiCosts));
-    const cheapestApiCost = Math.min(...Object.values(apiCosts));
+    const mostExpensiveApiCost = apiCosts.actual || Math.max(...Object.values(apiCosts).filter(v => typeof v === 'number'));
+    const cheapestApiCost = apiCosts.actual || Math.min(...Object.values(apiCosts).filter(v => typeof v === 'number'));
     
     if (mostExpensiveApiCost < 200) {
       const overpay = 200 - cheapestApiCost;
@@ -191,7 +263,7 @@ echo "📝 Session ID: ${sessionId}"
       console.log(`📊 Break-even: You'd need ${Math.ceil(200 / mostExpensiveApiCost)}x more usage to justify the subscription`);
     } else {
       const savings = mostExpensiveApiCost - 200;
-      console.log(`\n💎 Subscription value: Saving $${savings.toFixed(2)} vs most expensive API (${((savings / mostExpensiveApiCost) * 100).toFixed(1)}% savings)`);
+      console.log(`\n💎 Subscription value: Saving $${savings.toFixed(2)} vs API cost (${((savings / mostExpensiveApiCost) * 100).toFixed(1)}% savings)`);
     }
     
     if (sessionFiles.length > 0) {
@@ -202,23 +274,53 @@ echo "📝 Session ID: ${sessionId}"
     }
   },
   
-  dashboard: () => {
+  dashboard: async () => {
     console.log('🎯 Claude Logger Dashboard\n');
     
-    // Read token usage from .claude.json
-    const tokenData = getTokenUsage();
+    // Try to get stats from JSONL files first
+    let tokenData, apiCosts, usingJSONL = false, jsonlStats = null;
+    
+    try {
+      jsonlStats = await getAggregatedStats();
+      if (jsonlStats.totalRequests > 0) {
+        // Convert JSONL stats to tokenData format
+        tokenData = {
+          input: jsonlStats.usage.input_tokens,
+          output: jsonlStats.usage.output_tokens,
+          cacheCreation: jsonlStats.usage.cache_creation_input_tokens,
+          cacheRead: jsonlStats.usage.cache_read_input_tokens
+        };
+        
+        apiCosts = {
+          'actual': jsonlStats.totalCost
+        };
+        usingJSONL = true;
+        
+        console.log(`📊 Found ${jsonlStats.totalRequests} API calls across ${Object.keys(jsonlStats.byProject).length} projects`);
+      } else {
+        throw new Error('No JSONL data found');
+      }
+    } catch (e) {
+      // Fallback to .claude.json
+      tokenData = getTokenUsage();
+      apiCosts = calculateAPICosts(tokenData);
+    }
     
     const totalTokens = tokenData.input + tokenData.output + tokenData.cacheCreation + tokenData.cacheRead;
-    const apiCosts = calculateAPICosts(tokenData);
     
-    console.log('🎯 Project-wide Token Usage (cumulative):');
+    console.log(`\n🎯 Token Usage ${usingJSONL ? '(from JSONL files)' : '(from .claude.json)'}:`);
     console.log(`Total tokens: ${totalTokens.toLocaleString()}`);
     console.log(`Input: ${tokenData.input.toLocaleString()}, Output: ${tokenData.output.toLocaleString()}`);
     console.log(`Cache Creation: ${tokenData.cacheCreation.toLocaleString()}, Cache Read: ${tokenData.cacheRead.toLocaleString()}`);
     
     console.log(`\n💰 Cost vs API pricing:`);
-    console.log(`Claude Max: $200/month | API costs would be: Opus $${apiCosts['claude-4-opus'].toFixed(2)}, Sonnet $${apiCosts['claude-4-sonnet'].toFixed(2)}, Haiku $${apiCosts['claude-3.5-haiku'].toFixed(2)}`);
-    console.log(`📝 Note: Numbers show total project usage, not per-session\n`);
+    if (usingJSONL && apiCosts.actual) {
+      console.log(`Claude Max: $200/month | Actual API cost: $${apiCosts.actual.toFixed(2)}`);
+      console.log(`${apiCosts.actual > 200 ? '💎 Saving' : '💸 Overpaying'}: $${Math.abs(apiCosts.actual - 200).toFixed(2)} (${(Math.abs(apiCosts.actual - 200) / (apiCosts.actual > 200 ? apiCosts.actual : 200) * 100).toFixed(1)}%)`);
+    } else {
+      console.log(`Claude Max: $200/month | API costs would be: Opus $${apiCosts['claude-4-opus'].toFixed(2)}, Sonnet $${apiCosts['claude-4-sonnet'].toFixed(2)}, Haiku $${apiCosts['claude-3.5-haiku'].toFixed(2)}`);
+    }
+    console.log(`📝 Note: Numbers show total ${usingJSONL ? 'actual' : 'estimated'} usage\n`);
     
     // Check for active sessions
     const sessionsDir = path.join(CLAUDE_LOGS_DIR, 'sessions');
@@ -569,4 +671,11 @@ if (!command || !commands[command]) {
 }
 
 // Execute command
-commands[command](...args);
+(async () => {
+  try {
+    await commands[command](...args);
+  } catch (error) {
+    console.error('Error:', error.message);
+    process.exit(1);
+  }
+})();
