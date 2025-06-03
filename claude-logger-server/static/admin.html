@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Logger Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Claude Logger Admin</h1>
+                <nav>
+                    <a href="#dashboard" class="nav-link active" data-view="dashboard">Dashboard</a>
+                    <a href="#users" class="nav-link" data-view="users">Users</a>
+                    <a href="#analytics" class="nav-link" data-view="analytics">Analytics</a>
+                    <a href="#" id="logoutBtn">Logout</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="value">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Devices</h3>
+                    <div class="value">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Devices (24h)</h3>
+                    <div class="value">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Tokens</h3>
+                    <div class="value">-</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div class="card-body">
+                    <div id="recentActivity" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users View -->
+        <div id="users-view" class="view" style="display: none;">
+            <div class="search-container">
+                <input type="text" id="userSearch" placeholder="Search by user key..." />
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Users</h2>
+                </div>
+                <div class="card-body">
+                    <div id="usersTable" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="analytics-view" class="view" style="display: none;">
+            <div class="stats-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Token Usage Over Time</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="tokenChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Usage by Hour</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="hourlyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Top Users by Token Usage</h2>
+                </div>
+                <div class="card-body">
+                    <div id="topUsersTable" class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Detail Modal -->
+        <div id="userDetailModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>User Details</h2>
+                    <button class="close-btn" onclick="closeUserModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="userDetailContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>

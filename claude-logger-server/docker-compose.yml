@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  claude-logger-server:
+    build: .
+    container_name: claude-logger-server
+    ports:
+      - "8276:8000"
+    volumes:
+      - claude-logger-data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/claude_logger.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  claude-logger-data:

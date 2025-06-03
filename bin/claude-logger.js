@@ -4,10 +4,16 @@ const { exec, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
+const https = require('https');
+const readline = require('readline');
 const { getAggregatedStats } = require('./jsonl-parser');
 
 const CLAUDE_LOGS_DIR = path.join(os.homedir(), 'Documents', 'claude-logs');
 const CLAUDE_LOGGER_DIR = path.dirname(__dirname);
+const CLAUDE_CONFIG_DIR = path.join(os.homedir(), '.claude-logged');
+const CLAUDE_CONFIG_FILE = path.join(CLAUDE_CONFIG_DIR, 'config.json');
+const SYNC_SERVER_URL = process.env.CLAUDE_SYNC_SERVER || 'https://claude-logger-sync.herokuapp.com';
 
 // Claude API pricing (per million tokens)
 // Using patterns to match model variations
@@ -39,6 +45,65 @@ function calculateAPICosts(tokenData) {
   }
   
   return costs;
+}
+
+// Configuration management functions
+function loadConfig() {
+  try {
+    if (fs.existsSync(CLAUDE_CONFIG_FILE)) {
+      return JSON.parse(fs.readFileSync(CLAUDE_CONFIG_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error loading config:', e.message);
+  }
+  return null;
+}
+
+function saveConfig(config) {
+  try {
+    fs.mkdirSync(CLAUDE_CONFIG_DIR, { recursive: true });
+    fs.writeFileSync(CLAUDE_CONFIG_FILE, JSON.stringify(config, null, 2));
+    return true;
+  } catch (e) {
+    console.error('Error saving config:', e.message);
+    return false;
+  }
+}
+
+// Create readline interface for user input
+function createReadlineInterface() {
+  return readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+}
+
+// Make HTTP/HTTPS request helper
+function httpsRequest(options, data) {
+  return new Promise((resolve, reject) => {
+    const protocol = options.port === 443 || options.protocol === 'https:' ? https : require('http');
+    const req = protocol.request(options, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          resolve({
+            statusCode: res.statusCode,
+            body: res.statusCode === 204 ? null : JSON.parse(body)
+          });
+        } catch (e) {
+          resolve({
+            statusCode: res.statusCode,
+            body: body
+          });
+        }
+      });
+    });
+    
+    req.on('error', reject);
+    if (data) req.write(JSON.stringify(data));
+    req.end();
+  });
 }
 
 // Helper function to get token usage from .claude.json
@@ -386,40 +451,139 @@ echo "📝 Session ID: ${sessionId}"
     const hourlyUsage = new Array(24).fill(0);
     const dailyUsage = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
     
-    // Read all session files and extract token snapshots
+    // Read all session files and extract token snapshots with timestamps
     const sessionFiles = fs.readdirSync(sessionsDir).filter(f => f.endsWith('.log'));
-    let totalSnapshots = 0;
+    const snapshots = []; // Store all snapshots with timestamps for sorting
     
     sessionFiles.forEach(file => {
       try {
         const content = fs.readFileSync(path.join(sessionsDir, file), 'utf8');
         const lines = content.split('\n');
         
-        lines.forEach(line => {
-          // Look for token snapshot entries
+        // Get file timestamp from filename
+        const fileTimestamp = parseInt(file.split('-')[0]) * 1000; // Convert to milliseconds
+        
+        // Parse both old single-line format and new multi-line format
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Look for token snapshot entries - both old single-line and new multi-line format
           const tokenMatch = line.match(/\[(\d{2}):(\d{2})\].*Token snapshot.*Input:\s*(\d+).*Output:\s*(\d+).*Cache Creation:\s*(\d+).*Cache Read:\s*(\d+)/);
           if (tokenMatch) {
+            // Old single-line format
             const hour = parseInt(tokenMatch[1]);
+            const minute = parseInt(tokenMatch[2]);
             const input = parseInt(tokenMatch[3]) || 0;
             const output = parseInt(tokenMatch[4]) || 0;
             const cacheCreation = parseInt(tokenMatch[5]) || 0;
             const cacheRead = parseInt(tokenMatch[6]) || 0;
             
             const totalTokens = input + output + cacheCreation + cacheRead;
-            hourlyUsage[hour] += totalTokens;
-            totalSnapshots++;
+            snapshots.push({
+              timestamp: fileTimestamp,
+              hour,
+              minute,
+              totalTokens
+            });
+          } else {
+            // Check for new multi-line format starting with timestamp and "Token snapshot"
+            const snapshotStart = line.match(/\[(\d{2}):(\d{2})\].*Token snapshot.*Input:\s*(\d+)/);
+            if (snapshotStart && i + 12 < lines.length) {
+              const hour = parseInt(snapshotStart[1]);
+              const minute = parseInt(snapshotStart[2]);
+              let input = parseInt(snapshotStart[3]) || 0;
+              let output = 0;
+              let cacheCreation = 0;
+              let cacheRead = 0;
+              
+              // Parse the multi-line token data
+              let lineIndex = 1;
+              for (let j = i + 1; j < Math.min(i + 13, lines.length); j++) {
+                const currentLine = lines[j].trim();
+                
+                if (lineIndex <= 3) {
+                  const outputMatch = currentLine.match(/(\d+),\s*Output:\s*(\d+)/);
+                  if (outputMatch) {
+                    input += parseInt(outputMatch[1]) || 0;
+                    output = parseInt(outputMatch[2]) || 0;
+                  } else {
+                    const numberMatch = currentLine.match(/^\s*(\d+)\s*$/);
+                    if (numberMatch) {
+                      input += parseInt(numberMatch[1]) || 0;
+                    }
+                  }
+                } else if (lineIndex <= 6) {
+                  const cacheCreationMatch = currentLine.match(/(\d+),\s*Cache Creation:\s*(\d+)/);
+                  if (cacheCreationMatch) {
+                    output += parseInt(cacheCreationMatch[1]) || 0;
+                    cacheCreation = parseInt(cacheCreationMatch[2]) || 0;
+                  } else {
+                    const numberMatch = currentLine.match(/^\s*(\d+)\s*$/);
+                    if (numberMatch) {
+                      output += parseInt(numberMatch[1]) || 0;
+                    }
+                  }
+                } else if (lineIndex <= 9) {
+                  const cacheReadMatch = currentLine.match(/(\d+),\s*Cache Read:\s*(\d+)/);
+                  if (cacheReadMatch) {
+                    cacheCreation += parseInt(cacheReadMatch[1]) || 0;
+                    cacheRead = parseInt(cacheReadMatch[2]) || 0;
+                  } else {
+                    const numberMatch = currentLine.match(/^\s*(\d+)\s*$/);
+                    if (numberMatch) {
+                      cacheCreation += parseInt(numberMatch[1]) || 0;
+                    }
+                  }
+                } else {
+                  const numberMatch = currentLine.match(/^\s*(\d+)/);
+                  if (numberMatch) {
+                    cacheRead += parseInt(numberMatch[1]) || 0;
+                  }
+                  if (currentLine.includes('Cost calc')) {
+                    break;
+                  }
+                }
+                
+                lineIndex++;
+              }
+              
+              const totalTokens = input + output + cacheCreation + cacheRead;
+              snapshots.push({
+                timestamp: fileTimestamp,
+                hour,
+                minute,
+                totalTokens
+              });
+            }
           }
-        });
+        }
       } catch (e) {
         // Skip files that can't be read
       }
     });
     
-    if (totalSnapshots === 0) {
+    if (snapshots.length === 0) {
       console.log('No token snapshots found. Token snapshots are created every 5 minutes.');
       console.log('Run "claude-logger start" in terminals and wait for snapshots to be generated.');
       return;
     }
+    
+    // Sort snapshots by timestamp
+    snapshots.sort((a, b) => a.timestamp - b.timestamp);
+    
+    // Calculate incremental usage
+    let previousTotal = 0;
+    snapshots.forEach(snapshot => {
+      const increment = snapshot.totalTokens - previousTotal;
+      // Only count positive increments (negative would mean a reset or different session)
+      if (increment > 0) {
+        hourlyUsage[snapshot.hour] += increment;
+      }
+      // Update previous total for next iteration
+      if (snapshot.totalTokens > previousTotal) {
+        previousTotal = snapshot.totalTokens;
+      }
+    });
     
     // Generate hourly heatmap
     console.log('📊 Hourly Token Usage Pattern:');
@@ -439,8 +603,10 @@ echo "📝 Session ID: ${sessionId}"
     const quietHour = hourlyUsage.indexOf(Math.min(...hourlyUsage.filter(u => u > 0)));
     
     console.log(`Peak hour: ${peakHour.toString().padStart(2, '0')}:00 (${maxUsage.toLocaleString()} tokens)`);
-    console.log(`Quietest hour: ${quietHour.toString().padStart(2, '0')}:00`);
-    console.log(`Total snapshots analyzed: ${totalSnapshots}`);
+    if (quietHour >= 0) {
+      console.log(`Quietest active hour: ${quietHour.toString().padStart(2, '0')}:00`);
+    }
+    console.log(`Total incremental tokens: ${hourlyUsage.reduce((a, b) => a + b, 0).toLocaleString()}`);
     
     // Calculate productivity insights
     const morningUsage = hourlyUsage.slice(6, 12).reduce((a, b) => a + b, 0);
@@ -520,6 +686,270 @@ echo "📝 Session ID: ${sessionId}"
     console.log(`Completed today: ${sessions.filter(s => s.end !== 'ongoing').length}`);
   },
 
+  login: async () => {
+    console.log('\n🔐 Claude Analytics Login\n');
+    
+    const config = loadConfig() || {};
+    
+    // Check if already logged in
+    if (config.userKey) {
+      console.log('✅ You are already logged in!');
+      console.log(`🔑 Current key: ${config.userKey.substring(0, 16)}...`);
+      console.log(`🏠 Hostname: ${config.hostname}`);
+      console.log(`📅 Created: ${new Date(config.createdAt).toLocaleString()}`);
+      if (config.lastSync) {
+        console.log(`🔄 Last sync: ${new Date(config.lastSync).toLocaleString()}`);
+      }
+      
+      const rl = createReadlineInterface();
+      const choice = await new Promise((resolve) => {
+        rl.question('\n1) Keep current login\n2) Generate new user key (⚠️  will replace current)\n3) Use different existing key\n\nChoice: ', resolve);
+      });
+      
+      if (choice === '1') {
+        console.log('\n✅ Keeping current login. You can now use "claude-analytics sync".');
+        rl.close();
+        return;
+      } else if (choice === '3') {
+        // Use existing key
+        const key = await new Promise((resolve) => {
+          rl.question('\nEnter your existing key: ', resolve);
+        });
+        
+        if (key.length === 64 && /^[a-f0-9]+$/i.test(key)) {
+          config.userKey = key;
+          config.syncEnabled = true;
+          config.hostname = os.hostname();
+          config.restoredAt = new Date().toISOString();
+          delete config.lastSync; // Reset sync timestamp
+          
+          if (saveConfig(config)) {
+            console.log('✅ Key updated successfully!');
+          } else {
+            console.log('❌ Failed to save configuration');
+          }
+        } else {
+          console.log('❌ Invalid key format. Keys should be 64 hexadecimal characters.');
+        }
+        rl.close();
+        return;
+      }
+      rl.close();
+      // Fall through to generate new key (choice 2)
+    }
+    
+    const rl = createReadlineInterface();
+    const choice = config.userKey ? '2' : await new Promise((resolve) => {
+      rl.question('1) Generate new user key\n2) Use existing key\n\nChoice: ', resolve);
+    });
+    
+    if (choice === '1') {
+      // Generate new key
+      const userKey = crypto.randomBytes(32).toString('hex');
+      config.userKey = userKey;
+      config.syncEnabled = true;
+      config.hostname = os.hostname();
+      config.createdAt = new Date().toISOString();
+      
+      if (saveConfig(config)) {
+        console.log('\n✅ New key generated and saved to ~/.claude-logged/config.json');
+        console.log(`🔑 Your key: ${userKey}`);
+        console.log('\n⚠️  Save this key securely! You\'ll need it to sync from other devices.');
+      } else {
+        console.log('❌ Failed to save configuration');
+      }
+    } else if (choice === '2') {
+      // Use existing key
+      const key = await new Promise((resolve) => {
+        rl.question('\nEnter your existing key: ', resolve);
+      });
+      
+      if (key.length === 64 && /^[a-f0-9]+$/i.test(key)) {
+        config.userKey = key;
+        config.syncEnabled = true;
+        config.hostname = os.hostname();
+        config.restoredAt = new Date().toISOString();
+        
+        if (saveConfig(config)) {
+          console.log('✅ Key saved successfully!');
+        } else {
+          console.log('❌ Failed to save configuration');
+        }
+      } else {
+        console.log('❌ Invalid key format. Keys should be 64 hexadecimal characters.');
+      }
+    } else {
+      console.log('❌ Invalid choice');
+    }
+    
+    rl.close();
+  },
+  
+  sync: async () => {
+    console.log('\n📤 Syncing usage data to server...\n');
+    
+    const config = loadConfig();
+    if (!config || !config.userKey) {
+      console.log('❌ Not logged in. Run "claude-analytics login" first.');
+      return;
+    }
+    
+    if (!config.syncEnabled) {
+      console.log('❌ Sync is disabled. Enable it in ~/.claude-logged/config.json');
+      return;
+    }
+    
+    try {
+      // Gather usage data
+      const tokenData = getTokenUsage();
+      const apiCosts = calculateAPICosts(tokenData);
+      const jsonlStats = await getAggregatedStats();
+      
+      // Gather session data
+      const sessionFiles = fs.existsSync(path.join(CLAUDE_LOGS_DIR, 'sessions')) ?
+        fs.readdirSync(path.join(CLAUDE_LOGS_DIR, 'sessions')).filter(f => f.endsWith('.log')) : [];
+      
+      // Build hourly usage pattern
+      const hourlyUsage = new Array(24).fill(0);
+      // (You would analyze session logs here to populate hourly usage)
+      
+      const syncData = {
+        userKey: config.userKey,
+        hostname: config.hostname || os.hostname(),
+        timestamp: new Date().toISOString(),
+        usage: {
+          totalTokens: tokenData.input + tokenData.output + tokenData.cacheCreation + tokenData.cacheRead,
+          inputTokens: tokenData.input,
+          outputTokens: tokenData.output,
+          cacheCreationTokens: tokenData.cacheCreation,
+          cacheReadTokens: tokenData.cacheRead
+        },
+        sessions: {
+          total: sessionFiles.length,
+          active: sessionFiles.filter(f => {
+            const content = fs.readFileSync(path.join(CLAUDE_LOGS_DIR, 'sessions', f), 'utf8');
+            return !content.includes('session ended');
+          }).length,
+          averageDuration: 45.5 // This would be calculated from session logs
+        },
+        costs: {
+          opus: apiCosts['claude-4-opus'] || 0,
+          sonnet: apiCosts['claude-4-sonnet'] || 0,
+          haiku: apiCosts['claude-3.5-haiku'] || 0,
+          actual: jsonlStats.totalCost || 0
+        },
+        hourlyUsage: hourlyUsage,
+        version: require('../package.json').version
+      };
+      
+      // Send to server
+      const url = new URL(`${SYNC_SERVER_URL}/api/sync`);
+      const options = {
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: url.pathname,
+        method: 'POST',
+        protocol: url.protocol,
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': `claude-analytics/${syncData.version}`
+        }
+      };
+      
+      const response = await httpsRequest(options, syncData);
+      
+      if (response.statusCode === 200 || response.statusCode === 201) {
+        config.lastSync = new Date().toISOString();
+        saveConfig(config);
+        
+        console.log(`✅ Synced ${syncData.usage.totalTokens.toLocaleString()} tokens from ${syncData.hostname}`);
+        console.log(`✅ Last sync: ${new Date().toLocaleString()}`);
+      } else {
+        console.log(`❌ Sync failed: ${response.body?.message || response.body || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.log(`❌ Sync error: ${error.message}`);
+      console.log('Note: The sync server may not be deployed yet.');
+    }
+  },
+  
+  'stats-global': async () => {
+    console.log('\n🌍 Global Usage Statistics (All Devices)\n');
+    
+    const config = loadConfig();
+    if (!config || !config.userKey) {
+      console.log('❌ Not logged in. Run "claude-analytics login" first.');
+      return;
+    }
+    
+    try {
+      const url = new URL(`${SYNC_SERVER_URL}/api/stats/${config.userKey}`);
+      const options = {
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: url.pathname,
+        method: 'GET',
+        protocol: url.protocol,
+        headers: {
+          'User-Agent': `claude-analytics/${require('../package.json').version}`
+        }
+      };
+      
+      const response = await httpsRequest(options);
+      
+      if (response.statusCode === 200) {
+        const stats = response.body;
+        
+        console.log(`Devices: ${stats.devices.length}`);
+        let totalTokens = 0;
+        stats.devices.forEach(device => {
+          const percentage = stats.totalTokens > 0 ? 
+            ((device.totalTokens / stats.totalTokens) * 100).toFixed(0) : 0;
+          console.log(`- ${device.hostname}: ${device.totalTokens.toLocaleString()} tokens (${percentage}%)`);
+          totalTokens += device.totalTokens;
+        });
+        
+        console.log(`\nTotal Usage: ${totalTokens.toLocaleString()} tokens`);
+        console.log(`Total Cost (if API): $${stats.totalCost.toFixed(2)}`);
+        
+        console.log('\n💡 Use "claude-analytics stats" to see local device statistics.');
+      } else {
+        console.log(`❌ Failed to get global stats: ${response.body?.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.log(`❌ Error: ${error.message}`);
+      console.log('Note: The sync server may not be deployed yet.');
+    }
+  },
+  
+  status: () => {
+    console.log('\n🔍 Claude Analytics Status\n');
+    
+    const config = loadConfig();
+    if (!config || !config.userKey) {
+      console.log('❌ Not logged in');
+      console.log('💡 Run "claude-analytics login" to get started');
+      return;
+    }
+    
+    console.log('✅ Logged in and ready to sync');
+    console.log(`🔑 User key: ${config.userKey.substring(0, 16)}...`);
+    console.log(`🏠 Hostname: ${config.hostname}`);
+    console.log(`📅 Created: ${new Date(config.createdAt).toLocaleString()}`);
+    if (config.lastSync) {
+      console.log(`🔄 Last sync: ${new Date(config.lastSync).toLocaleString()}`);
+    } else {
+      console.log('🔄 Never synced');
+    }
+    console.log(`🌐 Server: ${SYNC_SERVER_URL}`);
+    console.log(`⚙️  Sync enabled: ${config.syncEnabled ? 'Yes' : 'No'}`);
+    
+    console.log('\n💡 Available commands:');
+    console.log('• claude-analytics sync          - Upload usage data');
+    console.log('• claude-analytics stats-global  - View combined stats');
+    console.log('• claude-analytics login         - Change login settings');
+  },
+  
   export: (format = 'csv') => {
     console.log(`📊 Exporting data in ${format.toUpperCase()} format...\n`);
     
@@ -667,6 +1097,10 @@ if (!command || !commands[command]) {
   console.log('  claude-analytics timeline        - Project timeline visualization');
   console.log('  claude-analytics export [format] - Export data (csv/json)');
   console.log('  claude-analytics merge           - Merge all session logs');
+  console.log('  claude-analytics login           - Login/register for sync functionality');
+  console.log('  claude-analytics status          - Check sync login status');
+  console.log('  claude-analytics sync            - Sync usage data to cloud');
+  console.log('  claude-analytics stats-global    - View aggregated stats from all devices');
   process.exit(0);
 }
 

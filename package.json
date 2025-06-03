@@ -7,7 +7,11 @@
     "claude-analytics": "bin/claude-logger.js"
   },
   "scripts": {
-    "postinstall": "node scripts/setup.js"
+    "postinstall": "node scripts/setup.js",
+    "build:dev": "./scripts/build-dev.sh",
+    "build:client": "./scripts/build-client.sh",
+    "pack:dev": "npm pack",
+    "test:sync": "node test-sync.js"
   },
   "keywords": [
     "claude",

@@ -22,6 +22,7 @@ This fork adds **comprehensive token tracking and analytics** that the original 
 - **📊 Advanced Export System** - Export data to CSV/JSON for external analysis
 - **🎯 Enhanced Statistics** - Detailed breakdowns of input/output/cache token usage
 - **⚡ Real-time Tracking** - Live token snapshots every 5 minutes
+- **☁️ NEW: Multi-Device Sync** - Aggregate usage across all your machines with secure cloud sync
 
 ## 🚀 Quick Start
 
@@ -181,6 +182,21 @@ claude-analytics export csv    # or json
 # Merge session logs
 claude-analytics merge
 ```
+
+### 🆕 Multi-Device Sync
+
+```bash
+# First-time setup (generate key)
+claude-analytics login
+
+# Sync to cloud
+claude-analytics sync
+
+# View stats from all devices
+claude-analytics stats-global
+```
+
+See [SYNC_SETUP.md](SYNC_SETUP.md) for detailed sync configuration.
 
 ### Starting Sessions
 

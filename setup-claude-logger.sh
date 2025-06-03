@@ -34,10 +34,15 @@ mkdir -p ~/Documents/claude-logs/sessions
 # Set up cron jobs for 15-minute intervals
 MERGE_CRON="*/15 * * * * $CLAUDE_LOGGER_DIR/multi-session-logger.sh merge"
 SNAPSHOT_CRON="*/5 * * * * $CLAUDE_LOGGER_DIR/multi-session-logger.sh snapshot"
+# Add hourly sync job (only runs if logged in)
+SYNC_CRON="0 * * * * $CLAUDE_LOGGER_DIR/bin/claude-logger.js sync >/dev/null 2>&1"
 
-(crontab -l 2>/dev/null | grep -v "claude-logger"; echo "$MERGE_CRON"; echo "$SNAPSHOT_CRON") | crontab -
+(crontab -l 2>/dev/null | grep -v "claude-logger"; echo "$MERGE_CRON"; echo "$SNAPSHOT_CRON"; echo "$SYNC_CRON") | crontab -
 
-echo "✅ Cron jobs configured for token snapshots (5-min) and log merging (15-min)"
+echo "✅ Cron jobs configured:"
+echo "   - Token snapshots: every 5 minutes"
+echo "   - Log merging: every 15 minutes"
+echo "   - Cloud sync: hourly (if logged in)"
 
 # Create Claude wrapper script
 CLAUDE_WRAPPER="$HOME/.local/bin/claude-logged"
@@ -84,10 +89,18 @@ echo "✅ Claude Analytics setup complete!"
 echo ""
 echo "🎯 Next steps:"
 echo "1. Restart your terminal or run: source ~/.zshrc"
-echo "2. Use 'claude-logged' instead of 'claude' for automatic logging"
-echo "3. Or add this to each terminal: export CLAUDE_SESSION_ID=\$(date +%s)-\$\$"
 echo ""
-echo "📊 View logs:"
+echo "📊 Analytics Commands (use claude-analytics):"
+echo "- claude-analytics stats     - View usage statistics"
+echo "- claude-analytics login     - Setup sync across devices"
+echo "- claude-analytics sync      - Sync data to cloud"
+echo "- claude-analytics heatmap   - View usage patterns"
+echo ""
+echo "🔧 Session Logging Options:"
+echo "- Use 'claude-logged' instead of 'claude' for automatic logging"
+echo "- Or add to each terminal: export CLAUDE_SESSION_ID=\$(date +%s)-\$\$"
+echo ""
+echo "📁 Log Files:"
 echo "- Today's log: ~/Documents/claude-logs/\$(date +%Y-%m-%d).md"
 echo "- Session logs: ~/Documents/claude-logs/sessions/"
 echo ""
